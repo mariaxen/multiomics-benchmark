@@ -17,6 +17,7 @@ import groupyr
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import cross_val_predict
 from sklearn.metrics import mean_squared_error
+from sklearn.linear_model import Lasso, ElasticNet, MultiTaskLasso, Ridge
 from sklearn.linear_model import LassoCV, ElasticNetCV, MultiTaskLassoCV, RidgeCV
 from sklearn.ensemble import RandomForestRegressor
 from scipy.optimize import nnls
@@ -314,7 +315,7 @@ def blockRF(X, y, feat_n, feature_groups_list, patient_groups, longitudinal, fol
     
     return pd.concat(y_prediction_train), pd.concat(y_observed_train), pd.concat(y_prediction_test),pd.concat(y_observed_test)
 
-def pymodels(X, y, type_model, feat_n, patient_groups, longitudinal, folds, repeats, tries, cv):
+def pymodels(X, y, optimisation, type_model, feat_n, patient_groups, longitudinal, folds, repeats, tries, cv):
         
     # Get your y
     y = y[:, feat_n]
@@ -339,23 +340,42 @@ def pymodels(X, y, type_model, feat_n, patient_groups, longitudinal, folds, repe
         #if type_model == 'SGLasso': 
         
          #   model = groupyr.SGLCV(l1_ratio = 1, groups=feature_groups_list, fit_intercept=False, cv=cv, n_jobs=5, tuning_strategy='bayes', n_bayes_iter=tries, n_bayes_points=5)
-
-        if type_model == 'lasso': 
-
-            model = LassoCV(n_jobs = 5, n_alphas = tries, cv = cv, verbose=0)
             
-        elif type_model == 'EN': 
+        if optimisation == 'optimised':
 
-            model = ElasticNetCV(n_jobs = 5, n_alphas = tries, cv = cv, verbose=0)
-                        
-        elif type_model == 'ridge': 
-            
-            model = RidgeCV(alphas = np.arange(0,12,0.3), cv = cv)
-            
-        elif type_model == 'RF':
-            
-            model = RandomForestRegressor()
+            if type_model == 'lasso': 
 
+                model = LassoCV(n_jobs = 5, n_alphas = tries, cv = cv, verbose=0)
+
+            elif type_model == 'EN': 
+
+                model = ElasticNetCV(n_jobs = 5, n_alphas = tries, cv = cv, verbose=0)
+
+            elif type_model == 'ridge': 
+
+                model = RidgeCV(alphas = np.arange(0,12,0.3), cv = cv)
+
+            elif type_model == 'RF':
+
+                model = RandomForestRegressor()
+                
+        elif optimisation == 'default':
+            
+            if type_model == 'lasso': 
+
+                model = Lasso()
+
+            elif type_model == 'EN': 
+
+                model = ElasticNet()
+
+            elif type_model == 'ridge': 
+
+                model = Ridge()
+
+            elif type_model == 'RF':
+
+                model = RandomForestRegressor()
 
         model_pipeline = Pipeline([
           ('scaler', StandardScaler()),
