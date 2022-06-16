@@ -3,7 +3,7 @@ multiomics-benchmark
 ====================
 
 
-Add a short description here!
+This is the code that accompanies the paper "BenMO: Benchmarking predictive machine learning algorithms using MultiOmics data"
 
 
 Description
